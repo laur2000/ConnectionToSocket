@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 public class JsonData
 {
-    public string id;
+   public string id;
     public string name;
     public string color;
 
@@ -21,11 +21,11 @@ public class JsonData
     }
     public string GetName()
     {
-        return id;
+        return name;
     }
     public string GetColor()
     {
-        return id;
+        return color;
     }
 
     //Set the parametres of the JSON
@@ -38,15 +38,26 @@ public class JsonData
     {
         color = COLOR;
     }
+   public WWWForm JsonDataToForm()
+    {
+        WWWForm data = new WWWForm();
+        data.AddField("id", id);
+        data.AddField("name", name);
+        data.AddField("color", color);
+
+        return data;
+    }
 }
 public class ConnectionToServer : MonoBehaviour
 {
     WebSocket ws;
-    string web_uri = "ws://app-mobile-api.herokuapp.com";
+    string web_uri;
+    string web_http="https://app-mobile-api.herokuapp.com/player";
     JsonData player;
 	// Use this for initialization
-	public void StartConnection () {
-
+   
+	public void StartConnection (string uri) {
+        web_uri = uri;
          ws= new WebSocket(web_uri);
          bool is_first = true;
             ws.OnOpen += (sender, e) => {
@@ -81,22 +92,29 @@ public class ConnectionToServer : MonoBehaviour
     
    IEnumerator Post()
     {
-        string data = JsonUtility.ToJson(player);
-        Debug.Log("Trying to upload: " + data);
-        using (UnityWebRequest www = UnityWebRequest.Post(web_uri, data))
+
+        WWWForm data = player.JsonDataToForm();
+        
+        using (UnityWebRequest www = UnityWebRequest.Post(web_http,data))
         {
+            
+           
             yield return www.SendWebRequest();
 
             if (www.isNetworkError || www.isHttpError)
             {
                 Debug.Log(www.error);
+               
             }
             else
             {
                 Debug.Log("Form upload complete!");
+                
             }
         }
     }
+
+    
     
 
 

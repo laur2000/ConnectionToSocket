@@ -52,7 +52,7 @@ public class MenuManager : MonoBehaviour
         manager.name = "networkManager";
         manager.AddComponent<ConnectionToServer>();
         connection = manager.GetComponent<ConnectionToServer>();
-        connection.StartConnection();
+        connection.StartConnection("ws://app-mobile-api.herokuapp.com");
     }
 
 }
