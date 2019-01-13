@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 public class JsonData
 {
-   public string id;
+    public string id;
     public string name;
     public string color;
 
@@ -66,8 +66,10 @@ public class ConnectionToServer : MonoBehaviour
             ws.OnMessage += (sender, e) => {
                 if(is_first)
                 {
-                    player = new JsonData(e.Data.Substring(4));
-
+                    
+                    player = new JsonData("");
+                    JsonUtility.FromJsonOverwrite(e.Data, player);
+                    Debug.Log(player.GetId());
                     
                     is_first = false;
                 }
@@ -100,10 +102,12 @@ public class ConnectionToServer : MonoBehaviour
             
            
             yield return www.SendWebRequest();
-
+            
             if (www.isNetworkError || www.isHttpError)
             {
                 Debug.Log(www.error);
+                Debug.Log(player.GetId());
+                Debug.Log(www.downloadHandler.text);
                
             }
             else
