@@ -63,6 +63,7 @@ public class ConnectionToServer : MonoBehaviour
             ws.OnOpen += (sender, e) => {
                 Debug.Log("Connection established!");
             };
+        
             ws.OnMessage += (sender, e) => {
                 if(is_first)
                 {

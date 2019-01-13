@@ -9,38 +9,43 @@ public class MenuManager : MonoBehaviour
 {
     [SerializeField]
     Text nickname_text;
+    [SerializeField]
+    Slider r_slider;
+    [SerializeField]
+    Slider g_slider;
+    [SerializeField]
+    Slider b_slider;
+    ColorChanger color_changer;
     string nickname;
-    string color;
+   
     GameObject manager;
     ConnectionToServer connection;
+    [SerializeField]
+    Image img;
     public void SetNickname()
     {
         nickname = nickname_text.text;
     }
     public void SetColorRed()
     {
-        color = ColorUtility.ToHtmlStringRGB(Color.red);
-        color = "#" + color.ToLower();
+        color_changer.r=r_slider.value;
+        color_changer.UpdateRGB();
     }
     public void SetColorBlue()
     {
-        color = ColorUtility.ToHtmlStringRGB(Color.blue);
-        color = "#" + color.ToLower();
+        color_changer.b = b_slider.value;
+        color_changer.UpdateRGB();
     }
-    public void SetColorYellow()
+    public void SetColorGreen()            
     {
-        color = ColorUtility.ToHtmlStringRGB(Color.yellow);
-        color = "#" + color.ToLower();
-    }
-    public void SetColorGreen()
-    {
-        color = ColorUtility.ToHtmlStringRGB(Color.green);
-        color = "#" + color.ToLower();
+            color_changer.g = g_slider.value;
+        color_changer.UpdateRGB();
+
     }
     public void StartGame()
     {
-
-        connection.SetDataJson(nickname, color);
+        
+        connection.SetDataJson(nickname, color_changer.ToHexadecimal());
         connection.SendJsonData();
         
 
@@ -54,5 +59,11 @@ public class MenuManager : MonoBehaviour
         connection = manager.GetComponent<ConnectionToServer>();
         connection.StartConnection("ws://app-mobile-api.herokuapp.com");
     }
-
+    private void Start()
+    {
+        color_changer= new ColorChanger(img);
+        r_slider.value = color_changer.r;
+        g_slider.value = color_changer.g;
+        b_slider.value = color_changer.b;
+    }
 }
