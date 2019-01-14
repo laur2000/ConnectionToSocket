@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp;
 using UnityEngine.Networking;
+using SimpleJSON;
 
-public class JsonData
+public class PlayerData
 {
-    public string id;
-    public string name;
-    public string color;
+    string id;
+    string name;
+    string color;
 
-   public JsonData(string ID)
+   public PlayerData(string ID)
     {
         id = ID;
     }
@@ -48,12 +49,15 @@ public class JsonData
         return data;
     }
 }
+
 public class ConnectionToServer : MonoBehaviour
 {
     WebSocket ws;
     string web_uri;
     string web_http="https://app-mobile-api.herokuapp.com/player";
-    JsonData player;
+    
+    PlayerData[] players_data=new PlayerData[6];
+
 	// Use this for initialization
    
 	public void StartConnection (string uri) {
@@ -62,29 +66,51 @@ public class ConnectionToServer : MonoBehaviour
          bool is_first = true;
             ws.OnOpen += (sender, e) => {
                 Debug.Log("Connection established!");
+                
             };
         
             ws.OnMessage += (sender, e) => {
                 if(is_first)
                 {
+                    var data = JSON.Parse(e.Data);
+
+                    players_data[0] = new PlayerData(data["id"]);
                     
-                    player = new JsonData("");
-                    JsonUtility.FromJsonOverwrite(e.Data, player);
-                    Debug.Log(player.GetId());
+                    Debug.Log("Client id: "+players_data[0].GetId());
                     
                     is_first = false;
                 }
-                Debug.Log(e.Data);
+                else
+                {
+                    var data = JSON.Parse(e.Data);
+                    for(int i=0;i<players_data.Length;i++)
+                    {
+                        if (data["playersList"][i] != null)
+                        {
+                            Debug.Log(data["playersList"][i]);
+                        }
+                    }
+
+                }
+                
             };
             ws.Connect();
         //string data =JsonConvert.SerializeObject(new JsonData());
 
     }
+    public void CloseConnection()
+    {
 
+        ws.Close();
+        Debug.Log("Connection closed");
+    }
     public void SetDataJson(string name,string color)
     {
-        player.SetName(name);
-        player.SetColor(color);
+        while(players_data[0] ==null)
+        { }
+        Debug.Log("Data updated");
+        players_data[0].SetName(name);
+        players_data[0].SetColor(color);
     }
     public void SendJsonData()
     {
@@ -96,7 +122,7 @@ public class ConnectionToServer : MonoBehaviour
    IEnumerator Post()
     {
 
-        WWWForm data = player.JsonDataToForm();
+        WWWForm data = players_data[0].JsonDataToForm();
         
         using (UnityWebRequest www = UnityWebRequest.Post(web_http,data))
         {
@@ -107,7 +133,7 @@ public class ConnectionToServer : MonoBehaviour
             if (www.isNetworkError || www.isHttpError)
             {
                 Debug.Log(www.error);
-                Debug.Log(player.GetId());
+                Debug.Log(players_data[0].GetId());
                 Debug.Log(www.downloadHandler.text);
                
             }
