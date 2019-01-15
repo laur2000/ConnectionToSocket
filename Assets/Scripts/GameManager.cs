@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
 
 {
     [SerializeField]
+    GameObject player_prefab;
+    [SerializeField]
     Text nickname_text;
     [SerializeField]
     Slider r_slider;
@@ -46,14 +48,25 @@ public class GameManager : MonoBehaviour
     {
         manager.AddComponent<ConnectionToServer>();
         connection = manager.GetComponent<ConnectionToServer>();
+        connection.SetPlayerPrefab(player_prefab);
         connection.StartConnection("ws://app-mobile-api.herokuapp.com");
-
-        connection.SetDataJson(nickname, color_changer.ToHexadecimal());
-        connection.SendJsonData();
+        
+        
+        
         DontDestroyOnLoad(manager);
         DontDestroyOnLoad(this.gameObject);
         SceneManager.LoadScene(1);
-       
+
+        
+        SceneManager.sceneLoaded += (sender, e) =>
+        {
+            Debug.Log("Scene loaded");
+            connection.SetDataJson(nickname, color_changer.ToHexadecimal());
+            
+            connection.SendJsonData();
+            
+
+        };
     }
     
     private void Awake()
@@ -68,7 +81,7 @@ public class GameManager : MonoBehaviour
         r_slider.value = color_changer.r;
         g_slider.value = color_changer.g;
         b_slider.value = color_changer.b;
-       
+        
     }
     private void Update()
     {
