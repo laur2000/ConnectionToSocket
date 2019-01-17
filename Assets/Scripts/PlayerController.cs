@@ -9,15 +9,24 @@ public class PlayerController : MonoBehaviour
     Vector3 mousePos = new Vector3();
     private void OnMouseDown()
     {
-        mousePos = Input.mousePosition;
+        
         
     }
     public Vector3 GetPos()
     {
         return mousePos;
     }
-    public void SetPlayerId(string id)
+    private void Update()
     {
-        player_id = id;
+
+        if (Input.GetMouseButton(0))
+        {
+            mousePos = Input.mousePosition;
+            this.gameObject.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 5));
+        }
+    }
+    public Vector3 GetMousePos()
+    {
+        return mousePos;
     }
 }

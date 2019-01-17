@@ -5,17 +5,20 @@ using WebSocketSharp;
 using UnityEngine.Networking;
 using SimpleJSON;
 
-public class PlayerData
+public class PlayerData: MonoBehaviour
 {
     string id;
-    string name;
+    string _name;
     string color;
     public int pos_x, pos_y;
     public bool isInstantiated = false;
     public bool change = true;
     GameObject container;
     
-    
+    public GameObject GetGameObject()
+    {
+        return container;
+    }
    public PlayerData(string ID)
     {
         id = ID;
@@ -27,26 +30,37 @@ public class PlayerData
     }
     public string GetName()
     {
-        return name;
+        return _name;
     }
     public string GetColor()
     {
         return color;
     }
     //GameObject methods
-   
-  
+   public void SetPosition(Vector3 pos)
+    {
+        pos_x = (int)pos.x;
+        pos_y = (int)pos.y;
+    }
+  public Vector3 GetPosition()
+    {
+        return new Vector3(pos_x, pos_y, 5);
+    }
     //Set the parametres of the JSON
-    public void SetPrefab(GameObject go)
+    public void SetPrefab(GameObject go,string main_id )
     {
         container = go;
+        container.name = _name;
         container.GetComponent<SpriteRenderer>().color = ColorChanger.ToColor(color);
-        
+        if(main_id!=id)
+        {
+            Destroy(container.GetComponent<PlayerController>());
+        }
         
     }
     public void SetName(string NAME)
     {
-        name = NAME;
+        _name = NAME;
     }
     public void SetColor(string COLOR)
     {
@@ -63,7 +77,7 @@ public class PlayerData
     }
     public void SetData(JSONNode data,int index)
     {
-        if (data["playersList"][index]["name"] != name || data["playersList"][index]["color"] != color)
+        if (data["playersList"][index]["name"] != _name || data["playersList"][index]["color"] != color)
         {
             change = true;
             
@@ -72,7 +86,7 @@ public class PlayerData
         {
             
             id=data["playersList"][index]["id"];
-            name=data["playersList"][index]["name"];
+            _name=data["playersList"][index]["name"];
             color=data["playersList"][index]["color"];
             
             change = false;
@@ -84,7 +98,7 @@ public class PlayerData
     {
         WWWForm data = new WWWForm();
         data.AddField("id", id);
-        data.AddField("name", name);
+        data.AddField("name", _name);
         data.AddField("color", color);
 
         return data;
@@ -150,6 +164,17 @@ public class ConnectionToServer : MonoBehaviour
             ws.Connect();
         
 
+    }
+    public void SendPlayerPosition(Vector3 pos)
+    {
+        JSONObject json = new JSONObject();
+        int posx = (int)pos.x;
+        int posy = (int)pos.y;
+        json.Add("id", player_id);
+        json.Add("posX", posx);
+        json.Add("posY", posy);
+        Debug.Log(json);
+        ws.Send(json);
     }
     int CreatePlayerData(JSONNode data)
     {

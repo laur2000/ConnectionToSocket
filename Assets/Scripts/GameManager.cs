@@ -95,15 +95,25 @@ public class GameManager : MonoBehaviour
         {
             foreach(PlayerData pd in playerDatas)
             {
-                Debug.Log(pd.GetId());
+
                 if (pd.isInstantiated == false)
                 {
-                   pd.SetPrefab(Instantiate(player_prefab));
+                   pd.SetPrefab(Instantiate(player_prefab),connection.GetMainPlayerId());
                     pd.isInstantiated = true;
                 }
                 else
                 {
-                    pd.UpdatePos();
+                    
+                    if(pd.GetId()==connection.GetMainPlayerId())
+                    {
+                        Vector3 pos = pd.GetGameObject().GetComponent<PlayerController>().GetMousePos();
+                        pd.SetPosition(pos);
+                        connection.SendPlayerPosition(pos);
+                    }
+                    else
+                    {
+                        pd.UpdatePos();
+                    }
                 }
 
 
