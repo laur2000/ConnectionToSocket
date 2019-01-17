@@ -27,5 +27,11 @@ public class ColorChanger
         return "#"+ ColorUtility.ToHtmlStringRGB(image.color).ToLower();
         
     }
+    public static Color ToColor(string hex)
+    {
+        Color new_col;
+        ColorUtility.TryParseHtmlString(hex,out new_col);
+        return new_col;
+    }
 }
 

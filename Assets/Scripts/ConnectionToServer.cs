@@ -13,6 +13,7 @@ public class PlayerData
     public int pos_x, pos_y;
     public bool isInstantiated = false;
     public bool change = true;
+    GameObject container;
     
     
    public PlayerData(string ID)
@@ -36,7 +37,13 @@ public class PlayerData
    
   
     //Set the parametres of the JSON
-    
+    public void SetPrefab(GameObject go)
+    {
+        container = go;
+        container.GetComponent<SpriteRenderer>().color = ColorChanger.ToColor(color);
+        
+        
+    }
     public void SetName(string NAME)
     {
         name = NAME;
@@ -50,8 +57,17 @@ public class PlayerData
         id=ID;
     }
     
+    public void UpdatePos()
+    {
+        container.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(pos_x, Screen.height-pos_y, 5));
+    }
     public void SetData(JSONNode data,int index)
     {
+        if (data["playersList"][index]["name"] != name || data["playersList"][index]["color"] != color)
+        {
+            change = true;
+            
+        }
         if (change)
         {
             
@@ -83,8 +99,15 @@ public class ConnectionToServer : MonoBehaviour
     GameObject player_prefab;
     List<PlayerData> players_data=new List<PlayerData>();
     string player_id;
-    
+    public string GetMainPlayerId()
+    {
+        return player_id;
+    }
     // Use this for initialization
+    public List<PlayerData> GetPlayersData()
+    {
+        return players_data;
+    }
     public void SetPlayerPrefab(GameObject go)
     {
         player_prefab = go;
@@ -139,6 +162,7 @@ public class ConnectionToServer : MonoBehaviour
         int gen = index - players_data.Count;
         for (int i = 0; i < gen; i++)
         {
+            
             Debug.Log("Added new player");
             players_data.Add(new PlayerData(""));
         }

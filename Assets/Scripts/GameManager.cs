@@ -64,17 +64,19 @@ public class GameManager : MonoBehaviour
             connection.SetDataJson(nickname, color_changer.ToHexadecimal());
             
             connection.SendJsonData();
-            
+            playerDatas = connection.GetPlayersData();
+            instantiate = true;
 
         };
     }
-    
+    bool instantiate = false;
     private void Awake()
     {
         manager = new GameObject();
         manager.name = "networkManager";
         
     }
+    List<PlayerData> playerDatas;
     private void Start()
     {
         color_changer= new ColorChanger(img);
@@ -88,6 +90,25 @@ public class GameManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.C))
         {
             connection.CloseConnection();
+        }
+        if(instantiate)
+        {
+            foreach(PlayerData pd in playerDatas)
+            {
+                Debug.Log(pd.GetId());
+                if (pd.isInstantiated == false)
+                {
+                   pd.SetPrefab(Instantiate(player_prefab));
+                    pd.isInstantiated = true;
+                }
+                else
+                {
+                    pd.UpdatePos();
+                }
+
+
+            }
+
         }
     }
 }
